@@ -18,26 +18,27 @@ async def process_start_command(message: types.Message):
 
 @dp.message_handler(commands=['Начать'])
 async def st(message: types.Message):
-    player = message.from_user.first_name + ' ' + message.from_user.last_name
-    await bot.send_message(message.from_user.id, f'{player} введите число!')
+    player = message.from_user.full_name
+    await message.answer(text=f'{player} введите число!')
+
+    global total
+    total = 121
+
 
 @dp.message_handler()
 async def invalid_input(message: types.Message):
-    total = 121
-    player = message.from_user.first_name + ' ' + message.from_user.last_name
+    global total
+    player = message.from_user.full_name
     take = int(message.text)
-    while total > 0:
-        if take <= 0 or take > 28 or take > total:
-            await message.answer(text='Некорректный ввод!')
+    if take <= 0 or take > 28 or take > total:
+        await message.answer(text='Некорректный ввод!')
+    else:
+        total -= take
+        if total == 0:
+            await message.answer(text=f'{player} вы победитель!'
+                                      f'\nЧтобы начать игру снова, нажмите "Начать"', reply_markup=greet_kb)
         else:
-            total -= take
-            if total == 0:
-                await message.answer(text=f'{player} вы победитель!')
-                break
-
             await message.answer(text=f'Конфет осталось {total}')
-
-
             cpu = randint(1, 28)
             if cpu > total:
                 cpu = randint(1, total)
@@ -47,8 +48,8 @@ async def invalid_input(message: types.Message):
             await message.answer(text=f'Компьютер взял {cpu}.\nКонфет осталось {total}')
 
             if total == 0:
-                await message.answer(text=f'Компьютер выиграл!')
-                break
+                await message.answer(text=f'Компьютер выиграл!'
+                                          f'\nЧтобы начать игру снова, нажмите "Начать"', reply_markup=greet_kb)
 
 
 
